@@ -51,7 +51,7 @@ public interface EncryptablePropertySource<T> extends OriginLookup<String> {
         Object value = source.getProperty(name);
         if (value != null && filter.shouldInclude(source, name) && value instanceof String) {
             String stringValue = String.valueOf(value);
-            return resolver.resolvePropertyValue(stringValue);
+            return resolver.resolvePropertyValue(stringValue, name, source);
         }
         return value;
     }

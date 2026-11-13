@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jasypt.encryption.StringEncryptor;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertySource;
 
 import java.util.Optional;
 
@@ -67,5 +68,11 @@ public class DefaultLazyPropertyResolver implements EncryptablePropertyResolver 
     @Override
     public String resolvePropertyValue(String value) {
         return singleton.get().resolvePropertyValue(value);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String resolvePropertyValue(String value, String name, PropertySource<?> source) {
+        return singleton.get().resolvePropertyValue(value, name, source);
     }
 }

@@ -72,7 +72,7 @@ public class CachingResolver {
         //originalValue must be String here
         if (filter.shouldInclude(delegate, name)) {
             String originStringValue = (String) originalValue;
-            String resolved = resolver.resolvePropertyValue(originStringValue);
+            String resolved = resolver.resolvePropertyValue(originStringValue, name, delegate);
             CachedValue newCachedValue = new CachedValue(originStringValue, resolved);
             //If the mapping relationship in the cache changes during
             // the calculation process, then ignore it directly.
@@ -101,4 +101,3 @@ public class CachingResolver {
         private final String resolvedValue;
     }
 }
-

@@ -7,6 +7,7 @@ import com.ulisesbocchio.jasyptspringboot.exception.DecryptionException;
 import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertySource;
 import org.springframework.util.Assert;
 
 import java.util.Optional;
@@ -51,6 +52,12 @@ public class DefaultPropertyResolver implements EncryptablePropertyResolver {
     /** {@inheritDoc} */
     @Override
     public String resolvePropertyValue(String value) {
+        return resolvePropertyValue(value, null, null);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String resolvePropertyValue(String value, String name, PropertySource<?> source) {
         return Optional.ofNullable(value)
                 .map(environment::resolvePlaceholders)
                 .filter(detector::isEncrypted)
@@ -60,10 +67,21 @@ public class DefaultPropertyResolver implements EncryptablePropertyResolver {
                         String resolvedProperty = environment.resolvePlaceholders(unwrappedProperty);
                         return encryptor.decrypt(resolvedProperty);
                     } catch (EncryptionOperationNotPossibleException e) {
-                        throw new DecryptionException("Unable to decrypt property: " + value + " resolved to: " + resolvedValue + ". Decryption of Properties failed,  make sure encryption/decryption " +
-                                "passwords match", e);
+                        throw new DecryptionException(buildDecryptionFailureMessage(name, source), e);
                     }
                 })
                 .orElse(value);
+    }
+
+    private static String buildDecryptionFailureMessage(String name, PropertySource<?> source) {
+        StringBuilder message = new StringBuilder("Unable to decrypt property");
+        if (name != null) {
+            message.append(" '").append(name).append("'");
+        }
+        if (source != null) {
+            message.append(" from property source '").append(source.getName()).append("'");
+        }
+        message.append(". Decryption of Properties failed, make sure encryption/decryption passwords match");
+        return message.toString();
     }
 }
